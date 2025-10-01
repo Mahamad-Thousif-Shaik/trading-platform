@@ -1,3 +1,32 @@
 spring:
   application:
     name: trading-platform
+  profiles:
+    active: dev
+
+  #DB Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/trading_dev?createDatabaseIfNotExist=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  #flyway configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  #log configuration
+logging:
+  level:
+    root: INFO
+    com.thousif.trading.platform: DEBUG

@@ -1,4 +1,4 @@
-package com.thousif.trading.trading_platform;
+package com.thousif.trading.platform;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
