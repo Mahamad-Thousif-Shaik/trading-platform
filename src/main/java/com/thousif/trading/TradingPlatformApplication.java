@@ -1,4 +1,4 @@
-package com.thousif.trading.trading_platform;
+package com.thousif.trading;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
