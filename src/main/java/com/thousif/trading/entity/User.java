@@ -49,7 +49,7 @@ public class User {
     private BigDecimal availableBalance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus userStatus;
+    private UserStatus status;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
