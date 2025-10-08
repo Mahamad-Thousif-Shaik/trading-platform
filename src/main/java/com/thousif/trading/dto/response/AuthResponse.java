@@ -12,7 +12,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Response {
+public class AuthResponse {
 
     private String token;
     private String type = "Bearer";
