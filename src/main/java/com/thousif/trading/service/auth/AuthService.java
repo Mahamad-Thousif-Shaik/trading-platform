@@ -33,10 +33,10 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request){
 
-        if(!userRepository.existsByUsername(request.getUsername())){
+        if(userRepository.existsByUsername(request.getUsername())){
             throw new TradingPlatformException("Username already exists");
         }
-        if(!userRepository.existsByEmail(request.getEmail())){
+        if(userRepository.existsByEmail(request.getEmail())){
             throw new TradingPlatformException("Email already exists");
         }
 
