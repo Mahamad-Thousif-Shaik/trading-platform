@@ -6,10 +6,18 @@ CREATE TABLE users(
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     phone_number VARCHAR(15),
-    available_balance DECIMAL(15,2) DEFAULT 0.00,
-    status ENUM('ACTIVE', 'SUSPENDED', 'INACTIVE') DEFAULT 'ACTIVE',
+    kite_user_id VARCHAR(50),
+    kite_access_token TEXT,
+    available_balance DECIMAL(15,2) NOT NULL DEFAULT 0.00 ,
+    used_margin DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    status ENUM('ACTIVE', 'SUSPENDED', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_email(email),
+    INDEX idx_kite_user_id(kite_user_id)
 );
 
 CREATE TABLE user_roles(

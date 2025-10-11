@@ -45,17 +45,38 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "available_balance", precision = 15, scale = 2)
+    @Column(unique = true, name = "kite_user_id")
+    private String kiteUserId;
+
+    @Column(name = "kite_access_token")
+    private String kiteAccessToken;
+
+    @Column(name = "available_balance", precision = 15, scale = 2, nullable = false)
+    @Builder.Default
     private BigDecimal availableBalance = BigDecimal.ZERO;
 
+    @Column(name = "used_margin", precision = 15, scale = 2, nullable = false)
+    @Builder.Default
+    private BigDecimal usedMargin = BigDecimal.ZERO;
+
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    @Column(nullable = false)
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     private Set<Role> roles;
+
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
+    @Column(name = "phone_verified", nullable = false)
+    @Builder.Default
+    private boolean phoneVerified = false;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -66,8 +87,13 @@ public class User {
     private LocalDateTime updatedAt;
 
 
+    public BigDecimal getFreeMargin(){
+        return availableBalance.subtract(usedMargin);
+    }
 
-
+    public BigDecimal getTotalBalance(){
+        return availableBalance;
+    }
 
 
 
