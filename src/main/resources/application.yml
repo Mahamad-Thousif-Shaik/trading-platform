@@ -25,6 +25,11 @@ trading:
     secret: mySecretKeyForJWTTokenGeneration123456789
     expiration: 86400000
 
+  market-data:
+    alpha-vantage:
+      api-key: ${ALPHA_VANTAGE_KEY:demo}
+      base-url: https://www.alphavantage.co
+
 logging:
   level:
     com.thousif.trading: DEBUG
