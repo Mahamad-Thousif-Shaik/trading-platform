@@ -79,6 +79,12 @@
             <version>0.12.3</version>
         </dependency>
 
+        <!--    Http client     -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
 
         <!--  Utility Libraries  -->
         <dependency>
