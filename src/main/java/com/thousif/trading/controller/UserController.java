@@ -2,6 +2,7 @@ package com.thousif.trading.controller;
 
 import com.thousif.trading.entity.User;
 import com.thousif.trading.service.auth.UserService;
+import com.thousif.trading.service.external.AlphaVantageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,12 +18,14 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final AlphaVantageService service;
 
     @GetMapping("/profile")
-    public ResponseEntity<User> getProfile(Authentication authentication){
-        User user = userService.findByUsername(authentication.getName());
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Map<?,?>> getProfile(Authentication authentication){
+//        User user = userService.findByUsername(authentication.getName());
+//        user.setPassword(null);
+        Map<String, Object> res = service.getHistoricalData("AAPL");
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/balance")

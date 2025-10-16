@@ -3,6 +3,7 @@ package com.thousif.trading.service.trading;
 import com.thousif.trading.entity.Stock;
 import com.thousif.trading.repository.StockRepository;
 import com.thousif.trading.service.external.AlphaVantageService;
+import com.thousif.trading.service.external.KiteConnectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +20,7 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final AlphaVantageService alphaVantageService;
+    private final KiteConnectService kiteConnectService;
 
     @Cacheable(value = "stocks", key = "#symbol")
     public Stock getStockBySymbol(String symbol){
@@ -33,6 +35,10 @@ public class StockService {
 
     public List<Stock> getActiveStocks(){
         return stockRepository.findByIsActiveTrue();
+    }
+
+    public List<Stock> getPopularStocks(){
+        return stockRepository.findTop20ByOrderByVolumeDesc();
     }
 
     public Map<String, BigDecimal> getLivePrice(String symbol){
@@ -51,5 +57,12 @@ public class StockService {
         return stock;
     }
 
+    public List<Stock> getStocksBySector(String sector){
+        return stockRepository.findBySector(sector);
+    }
+
+    public List<Stock> getStockByExchange(String exchange){
+        return stockRepository.findByExchange(exchange);
+    }
 
 }
