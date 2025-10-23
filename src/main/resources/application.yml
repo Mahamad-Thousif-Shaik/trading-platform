@@ -20,6 +20,13 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+      timeout: 2000ms
+
 trading:
   jwt:
     secret: mySecretKeyForJWTTokenGeneration123456789
@@ -30,7 +37,7 @@ trading:
       api-key: ${ALPHA_VANTAGE_KEY:demo}
       base-url: https://www.alphavantage.co
   kite:
-    api-key: ${KITE_API_KEY}
+    api-key: ${KITE_API_KEY:key}
     base-url: https://api.kite.trade
 
 logging:
