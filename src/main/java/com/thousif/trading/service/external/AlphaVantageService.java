@@ -49,6 +49,25 @@ public class AlphaVantageService {
         return null;
     }
 
+    public Map<String, Object> getHistoricalData(String symbol) {
+        try {
+            String url = String.format("%s/query?function=TIME_SERIES_DAILY&symbol=%s&apikey=%s", baseUrl, symbol, apiKey);
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode timeSeriesNode = rootNode.get("Time Series (Daily)");
+
+            if(timeSeriesNode != null){
+                Map<String, Object> historicalData = new HashMap<>();
+                historicalData.put("symbol", symbol);
+                historicalData.put("timeSeries", timeSeriesNode);
+                return historicalData;
+            }
+        }
+        catch (Exception e){
+            log.error("Error fetching historical data for symbol: {}", symbol, e);
+        }
+        return null;
+    }
 
 
 
