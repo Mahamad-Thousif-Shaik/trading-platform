@@ -1,7 +1,6 @@
 package com.thousif.trading.security;
 
 import com.thousif.trading.entity.User;
-import com.thousif.trading.enums.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,8 +23,6 @@ public class CustomUserDetails implements UserDetails {
         this.roles = user.getRoles().stream().map(
                 role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
-        this.isAccountLocked = user.getStatus() != UserStatus.ACTIVE;
-        this.isEnabled = user.getStatus() == UserStatus.ACTIVE;
     }
 
     @Override
@@ -44,13 +41,4 @@ public class CustomUserDetails implements UserDetails {
     }
 
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return !isAccountLocked;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return isEnabled;
-    }
 }

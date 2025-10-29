@@ -2,6 +2,7 @@ package com.thousif.trading.service.trading;
 
 import com.thousif.trading.entity.Stock;
 import com.thousif.trading.repository.StockRepository;
+import com.thousif.trading.service.cache.CacheService;
 import com.thousif.trading.service.external.AlphaVantageService;
 import com.thousif.trading.service.external.KiteConnectService;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,15 @@ public class StockService {
     private final StockRepository stockRepository;
     private final AlphaVantageService alphaVantageService;
     private final KiteConnectService kiteConnectService;
+    private final CacheService cacheService;
 
     @Cacheable(value = "stocks", key = "#symbol")
     public Stock getStockBySymbol(String symbol){
-        log.info("db hit");
-        return stockRepository.findBySymbol(symbol)
+
+        Stock stock = stockRepository.findBySymbol(symbol)
                 .orElseThrow(() -> new RuntimeException("Stock not found: " + symbol));
+        log.debug("db hit");
+        return stock;
     }
 
     public List<Stock> searchStocks(String query){
@@ -52,7 +56,7 @@ public class StockService {
         if(priceData != null && priceData.containsKey("price")){
             stock.setCurrentPrice(priceData.get("price"));
             stock = stockRepository.save(stock);
-            log.info("Updated price for {}: {}",symbol, priceData.get("price"));
+            log.debug("Updated price for {}: {}",symbol, priceData.get("price"));
         }
         return stock;
     }

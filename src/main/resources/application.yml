@@ -43,3 +43,5 @@ trading:
 logging:
   level:
     com.thousif.trading: DEBUG
+    org.springframework.data.redis: DEBUG
+    com.fasterxml.jackson: DEBUG
