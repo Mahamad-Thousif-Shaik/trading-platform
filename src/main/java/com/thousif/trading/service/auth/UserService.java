@@ -15,14 +15,19 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    public User findByUsernameOrEmail(String identifier){
+        return userRepository.findByUsernameOrEmail(identifier)
+                .orElseThrow(() -> new TradingPlatformException("User not found: " + identifier));
+    }
+
     public User findByUsername(String username){
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new TradingPlatformException("User not found"));
+                .orElseThrow(() -> new TradingPlatformException("User not found:" + username));
     }
 
     public User findByEmail(String email){
         return userRepository.findByEmail(email)
-                .orElseThrow(()-> new TradingPlatformException("User not found"));
+                .orElseThrow(()-> new TradingPlatformException("User not found:" + email));
     }
 
     public Map<String, Object> getUserBalance(Authentication authentication){

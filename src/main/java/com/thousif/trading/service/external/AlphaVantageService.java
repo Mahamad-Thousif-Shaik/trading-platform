@@ -39,7 +39,7 @@ public class AlphaVantageService {
                 stockData.put("change", new BigDecimal(quoteNode.get("09. change").asText()));
                 stockData.put("changePercent",
                         new BigDecimal(quoteNode.get("10. change percent").asText().replace("%","")));
-                log.info(stockData.toString());
+                log.debug(stockData.toString());
                 return stockData;
             }
 

@@ -1,7 +1,7 @@
 package com.thousif.trading.security;
 
 import com.thousif.trading.entity.User;
-import com.thousif.trading.repository.UserRepository;
+import com.thousif.trading.service.auth.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,13 +12,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-
-        User user = userRepository.findByUsernameOrEmail(identifier)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
+        User user = userService.findByUsernameOrEmail(identifier);
 
         return new CustomUserDetails(user);
     }
