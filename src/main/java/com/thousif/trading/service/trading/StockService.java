@@ -1,6 +1,7 @@
 package com.thousif.trading.service.trading;
 
 import com.thousif.trading.entity.Stock;
+import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.StockRepository;
 import com.thousif.trading.service.cache.CacheService;
 import com.thousif.trading.service.external.AlphaVantageService;
@@ -11,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ public class StockService {
     private final CacheService cacheService;
 
     @Cacheable(value = "stocks", key = "#symbol")
-    public Stock getStockBySymbol(String symbol){
+    public Stock getStockBySymbol(String symbol) {
 
         Stock stock = stockRepository.findBySymbol(symbol)
                 .orElseThrow(() -> new RuntimeException("Stock not found: " + symbol));
@@ -33,39 +35,69 @@ public class StockService {
         return stock;
     }
 
-    public List<Stock> searchStocks(String query){
+    public List<Stock> searchStocks(String query) {
         return stockRepository.searchStocks(query);
     }
 
-    public List<Stock> getActiveStocks(){
+    public List<Stock> getActiveStocks() {
         return stockRepository.findByIsActiveTrue();
     }
 
-    public List<Stock> getPopularStocks(){
+    public List<Stock> getPopularStocks() {
         return stockRepository.findTop20ByOrderByVolumeDesc();
     }
 
-    public Map<String, BigDecimal> getLivePrice(String symbol){
+    public Map<String, BigDecimal> getLivePrice(String symbol) {
+        // For development: Skipping external API calls, use database prices
+        // Avoids Alpha Vantage API issues with Indian stocks
+
+        Stock stock = getStockBySymbol(symbol);
+
+        if (stock.getCurrentPrice() == null) {
+            throw new TradingPlatformException("Price not available for stock: " + symbol);
+        }
+
+        // Return database prices (will be updated by MarketDataService scheduler)
+        Map<String, BigDecimal> priceData = new HashMap<>();
+        priceData.put("price", stock.getCurrentPrice());
+        priceData.put("change", stock.getCurrentPrice().subtract(stock.getPreviousClose()));
+        priceData.put("dayHigh", stock.getDayHigh() != null ? stock.getDayHigh() : stock.getCurrentPrice());
+        priceData.put("dayLow", stock.getDayLow() != null ? stock.getDayLow() : stock.getCurrentPrice());
+
+        log.debug("Returning database price for {}: {}", symbol, stock.getCurrentPrice());
+
+        return priceData;
+
+        /* ORIGINAL CODE (commented out for development):
+        // Try Kite Connect first, fallback to Alpha Vantage
+        Map<String, Object> kiteQuote = kiteConnectService.getQuote(symbol);
+        if (kiteQuote != null) {
+            return parseKiteQuote(kiteQuote);
+        }
+
+        // Fallback to Alpha Vantage (only US stocks work)
         return alphaVantageService.getStockPrice(symbol);
+        */
     }
 
-    public Stock updateStockPrice(String symbol){
+
+    public Stock updateStockPrice(String symbol) {
         Stock stock = getStockBySymbol(symbol);
         Map<String, BigDecimal> priceData = getLivePrice(symbol);
 
-        if(priceData != null && priceData.containsKey("price")){
+        if (priceData != null && priceData.containsKey("price")) {
             stock.setCurrentPrice(priceData.get("price"));
             stock = stockRepository.save(stock);
-            log.debug("Updated price for {}: {}",symbol, priceData.get("price"));
+            log.debug("Updated price for {}: {}", symbol, priceData.get("price"));
         }
         return stock;
     }
 
-    public List<Stock> getStocksBySector(String sector){
+    public List<Stock> getStocksBySector(String sector) {
         return stockRepository.findBySector(sector);
     }
 
-    public List<Stock> getStockByExchange(String exchange){
+    public List<Stock> getStockByExchange(String exchange) {
         return stockRepository.findByExchange(exchange);
     }
 
