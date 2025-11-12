@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
@@ -37,6 +38,12 @@ public class UserService {
                 "availableBalance", user.getAvailableBalance(),
                 "usedMargin", user.getUsedMargin()
         );
+    }
+
+    public User updateBalance(String username, BigDecimal amount) {
+        User user = findByUsername(username);
+        user.setAvailableBalance(user.getAvailableBalance().add(amount));
+        return userRepository.save(user);
     }
 
 }

@@ -33,6 +33,9 @@ public class OrderRequest {
     @DecimalMin(value = "0.01", message = "Price must be greater than 0")
     private BigDecimal price; // Required for LIMIT orders
 
+    @DecimalMin(value = "0.01", message = "Trigger price must be greater than 0")
+    private BigDecimal triggerPrice; // Required for SL orders
+
     @Pattern(regexp = "DAY|IOC|GTD", message = "Validity must be DAY, IOC, or GTD")
     private String validity;
 
