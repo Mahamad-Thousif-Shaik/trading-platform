@@ -33,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final StockService stockService;
+    private final PortfolioService portfolioService;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String username){
@@ -88,6 +89,16 @@ public class OrderService {
                 throw new InsufficientFundsException(
                         String.format("Insufficient funds. Required: ₹%s, Available: ₹%s",
                                 requiredFunds, user.getFreeMargin()));
+            }
+        }
+
+        // Check holdings for sell orders
+        if (request.getTransactionType() == TransactionType.SELL) {
+            Integer availableQuantity = portfolioService.getAvailableQuantity(user, stock);
+            if (availableQuantity < request.getQuantity()) {
+                throw new OrderValidationException(
+                        String.format("Insufficient stocks to sell. Available: %d, Requested: %d",
+                                availableQuantity, request.getQuantity()));
             }
         }
 
@@ -149,6 +160,15 @@ public class OrderService {
             order.setStatus(OrderStatus.COMPLETE);
             order.setExecutedAt(LocalDateTime.now());
             orderRepository.save(order);
+
+            // Update portfolio
+            portfolioService.updatePortfolioOnExecution(
+                    order.getUser(),
+                    order.getStock(),
+                    order.getQuantity(),
+                    executionPrice,
+                    order.getTransactionType().name()
+            );
 
             // Update user balance
             updateUserBalanceOnExecution(order);
