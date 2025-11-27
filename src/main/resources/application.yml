@@ -56,6 +56,10 @@ trading:
       provider: mailtrap
       from: "noreply@tradingapp.com"
 
+    sms:
+      provider: log # Options: log, twilio, jasmin
+      from: TradingApp
+
 logging:
   level:
     com.thousif.trading: DEBUG
