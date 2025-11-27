@@ -13,6 +13,7 @@ import com.thousif.trading.exception.OrderValidationException;
 import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.OrderRepository;
 import com.thousif.trading.service.auth.UserService;
+import com.thousif.trading.service.notification.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ public class OrderService {
     private final UserService userService;
     private final StockService stockService;
     private final PortfolioService portfolioService;
+    private final EmailService emailService;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String username){
@@ -66,6 +68,18 @@ public class OrderService {
 
         // Process order based on type
         processOrder(order);
+
+        // Send order confirmation email
+        emailService.sendOrderConfirmationEmail(
+                user.getEmail(),
+                user.getUsername(),
+                order.getOrderId(),
+                stock.getSymbol(),
+                request.getTransactionType().toString(),
+                request.getQuantity(),
+                request.getPrice() != null ? request.getPrice().toString() : "Market Price"
+        );
+
         log.info("Order placed successfully: {}", order.getOrderId());
 
         return mapToOrderResponse(order);
@@ -172,6 +186,16 @@ public class OrderService {
 
             // Update user balance
             updateUserBalanceOnExecution(order);
+
+            // Send execution notification email
+            emailService.sendOrderExecutionEmail(
+                    order.getUser().getEmail(),
+                    order.getUser().getUsername(),
+                    order.getOrderId(),
+                    order.getStock().getSymbol(),
+                    executionPrice.toString()
+            );
+
             log.info("Market order executed: {} at price {}", order.getOrderId(), executionPrice);
         }
         catch(Exception e){

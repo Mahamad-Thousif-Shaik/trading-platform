@@ -9,6 +9,7 @@ import com.thousif.trading.enums.UserStatus;
 import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.UserRepository;
 import com.thousif.trading.security.JwtTokenProvider;
+import com.thousif.trading.service.notification.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 @Service
@@ -29,6 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request){
@@ -51,7 +54,11 @@ public class AuthService {
                 .status(UserStatus.ACTIVE)
                 .build();
 
+        user.setAvailableBalance(new BigDecimal("100000.00")); // Demo balance
         user = userRepository.save(user);
+
+        // Send welcome email asynchronously
+        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
 
         String token = jwtTokenProvider.generateToken(user.getUsername());
 
