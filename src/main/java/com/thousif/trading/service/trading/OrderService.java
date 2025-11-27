@@ -13,7 +13,7 @@ import com.thousif.trading.exception.OrderValidationException;
 import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.OrderRepository;
 import com.thousif.trading.service.auth.UserService;
-import com.thousif.trading.service.notification.EmailService;
+import com.thousif.trading.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,7 +35,7 @@ public class OrderService {
     private final UserService userService;
     private final StockService stockService;
     private final PortfolioService portfolioService;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String username){
@@ -70,15 +70,7 @@ public class OrderService {
         processOrder(order);
 
         // Send order confirmation email
-        emailService.sendOrderConfirmationEmail(
-                user.getEmail(),
-                user.getUsername(),
-                order.getOrderId(),
-                stock.getSymbol(),
-                request.getTransactionType().toString(),
-                request.getQuantity(),
-                request.getPrice() != null ? request.getPrice().toString() : "Market Price"
-        );
+        notificationService.sendOrderPlacedNotifications(order);
 
         log.info("Order placed successfully: {}", order.getOrderId());
 
@@ -188,13 +180,7 @@ public class OrderService {
             updateUserBalanceOnExecution(order);
 
             // Send execution notification email
-            emailService.sendOrderExecutionEmail(
-                    order.getUser().getEmail(),
-                    order.getUser().getUsername(),
-                    order.getOrderId(),
-                    order.getStock().getSymbol(),
-                    executionPrice.toString()
-            );
+            notificationService.sendOrderExecutedNotifications(order, executionPrice);
 
             log.info("Market order executed: {} at price {}", order.getOrderId(), executionPrice);
         }
