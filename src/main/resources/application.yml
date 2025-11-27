@@ -27,6 +27,18 @@ spring:
       database: 0
       timeout: 2000ms
 
+  mail:
+    host: live.smtp.mailtrap.io
+    port: 587
+    username: ${MAILTRAP_USERNAME:demo}
+    password: ${MAILTRAP_PASSWORD:demo}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 trading:
   jwt:
     secret: mySecretKeyForJWTTokenGeneration123456789
@@ -39,6 +51,10 @@ trading:
   kite:
     api-key: ${KITE_API_KEY:key}
     base-url: https://api.kite.trade
+  notifications:
+    email:
+      provider: mailtrap
+      from: "noreply@tradingapp.com"
 
 logging:
   level:

@@ -21,16 +21,16 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     List<Portfolio> findByUser(User user);
 
-    @Query("SELECT SUM(p.currentValue) FROM portfolio p WHERE p.user = :user AND p.quantity > 0")
+    @Query("SELECT SUM(p.currentValue) FROM Portfolio p WHERE p.user = :user AND p.quantity > 0")
     BigDecimal getTotalPortfolioValue(@Param("user") User user);
 
-    @Query("SELECT SUM(p.investedAmount) FROM portfolio p WHERE p.user = :user AND p.quantity > 0")
+    @Query("SELECT SUM(p.investedAmount) FROM Portfolio p WHERE p.user = :user AND p.quantity > 0")
     BigDecimal getTotalInvestedAmount(@Param("user") User user);
 
     @Query("SELECT SUM(p.unrealizedPnl) FROM Portfolio p WHERE p.user = :user AND p.quantity > 0")
     BigDecimal getTotalUnrealizedPnl(@Param("user") User user);
 
-    @Query("SELECT SUM(p.investedAmount) FROM portfolio p WHERE p.user = :user AND p.quantity > 0")
+    @Query("SELECT SUM(p.investedAmount) FROM Portfolio p WHERE p.user = :user AND p.quantity > 0")
     BigDecimal getTotalRealizedPnl(@Param("user") User user);
 
     @Query("SELECT COUNT(p) FROM Portfolio p WHERE p.user = :user AND p.quantity > 0")
