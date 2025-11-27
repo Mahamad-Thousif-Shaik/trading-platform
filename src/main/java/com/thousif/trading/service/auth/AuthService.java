@@ -9,7 +9,7 @@ import com.thousif.trading.enums.UserStatus;
 import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.UserRepository;
 import com.thousif.trading.security.JwtTokenProvider;
-import com.thousif.trading.service.notification.EmailService;
+import com.thousif.trading.service.notification.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request){
@@ -58,7 +58,7 @@ public class AuthService {
         user = userRepository.save(user);
 
         // Send welcome email asynchronously
-        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+        notificationService.sendWelcomeNotifications(user);
 
         String token = jwtTokenProvider.generateToken(user.getUsername());
 
