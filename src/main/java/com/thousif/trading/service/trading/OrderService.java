@@ -13,6 +13,7 @@ import com.thousif.trading.exception.OrderValidationException;
 import com.thousif.trading.exception.TradingPlatformException;
 import com.thousif.trading.repository.OrderRepository;
 import com.thousif.trading.service.auth.UserService;
+import com.thousif.trading.service.messaging.KafkaEventProducer;
 import com.thousif.trading.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -36,6 +38,7 @@ public class OrderService {
     private final StockService stockService;
     private final PortfolioService portfolioService;
     private final NotificationService notificationService;
+    private final KafkaEventProducer kafkaEventProducer;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String username){
@@ -65,6 +68,23 @@ public class OrderService {
                 .build();
 
         order = orderRepository.save(order);
+
+        kafkaEventProducer.publishOrderEvent(
+                order.getOrderId(),
+                Map.of(
+                        "eventType", "ORDER_PLACED",
+                        "orderId", order.getOrderId(),
+                        "user", username,
+                        "symbol", order.getStock().getSymbol(),
+                        "side", order.getTransactionType().name(),
+                        "qty", order.getQuantity()
+                )
+        );
+
+        log.info("Order placed: id={} user={} symbol={} side={} qty={}",
+                order.getOrderId(), username,
+                order.getStock().getSymbol(),
+                order.getTransactionType(), order.getQuantity());
 
         // Process order based on type
         processOrder(order);
