@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <springProperty name="LOG_DIR" source="logging.file.path" defaultValue="/var/log/trading-platform"/>
-    <springProperty name="LOG_LEVEL" source="logging.level.root" defaultValue="WARN"/>
-    <springProperty name="APP_LOG_LEVEL" source="logging.level.com.thousif.trading" defaultValue="INFO"/>
+    <springProperty name="LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty name="APP_LOG_LEVEL" source="logging.level.com.thousif.trading" defaultValue="DEBUG"/>
 
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 

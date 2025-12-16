@@ -27,7 +27,7 @@ public class MarketDataService {
     private final CacheService cacheService;
     private final Random random = new Random();
 
-    @Scheduled(fixedRate = 5000)
+    //@Scheduled(fixedRate = 5000)
     public void broadcastMarketData(){
 
         List<Stock> popularStocks = stockService.getPopularStocks();
@@ -82,7 +82,7 @@ public class MarketDataService {
         );
     }
 
-    @Scheduled(fixedRate = 60000)
+    //@Scheduled(fixedRate = 60000)
     public void updateStockPrices(){
         List<Stock> popularStocks = stockService.getPopularStocks();
 
