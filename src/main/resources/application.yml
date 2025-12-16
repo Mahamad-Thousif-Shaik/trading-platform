@@ -81,6 +81,32 @@ trading:
       provider: log # Options: log, twilio, jasmin
       from: TradingApp
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always #should change it to #when-authorized
+      show-components: always
+    info:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    mail:
+      enabled: false
+
 logging:
   config: classpath:logback-trading.xml
   level:
