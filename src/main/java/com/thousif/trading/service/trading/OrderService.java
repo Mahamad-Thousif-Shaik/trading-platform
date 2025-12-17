@@ -11,10 +11,12 @@ import com.thousif.trading.enums.TransactionType;
 import com.thousif.trading.exception.InsufficientFundsException;
 import com.thousif.trading.exception.OrderValidationException;
 import com.thousif.trading.exception.TradingPlatformException;
+import com.thousif.trading.metrics.OrderMetrics;
 import com.thousif.trading.repository.OrderRepository;
 import com.thousif.trading.service.auth.UserService;
 import com.thousif.trading.service.messaging.KafkaEventProducer;
 import com.thousif.trading.service.notification.NotificationService;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,12 +41,14 @@ public class OrderService {
     private final PortfolioService portfolioService;
     private final NotificationService notificationService;
     private final KafkaEventProducer kafkaEventProducer;
+    private final OrderMetrics orderMetrics;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String username){
         log.info("Placing order for user: {}, stock: {}, type: {}, quantity: {}",
                 username, request.getStockSymbol(), request.getTransactionType(), request.getQuantity());
 
+        Timer.Sample sample = orderMetrics.startExecutionTimer();
         User user = userService.findByUsername(username);
         Stock stock = stockService.getStockBySymbol(request.getStockSymbol());
 
@@ -93,6 +97,9 @@ public class OrderService {
         notificationService.sendOrderPlacedNotifications(order);
 
         log.info("Order placed successfully: {}", order.getOrderId());
+
+        orderMetrics.incrementOrderCreated();
+        orderMetrics.recordExecutionTime(sample);
 
         return mapToOrderResponse(order);
     }
@@ -202,6 +209,8 @@ public class OrderService {
             // Send execution notification email
             notificationService.sendOrderExecutedNotifications(order, executionPrice);
 
+            orderMetrics.incrementOrderExecuted();
+
             log.info("Market order executed: {} at price {}", order.getOrderId(), executionPrice);
         }
         catch(Exception e){
@@ -284,6 +293,8 @@ public class OrderService {
         releaseBlockedMargin(order);
 
         log.info("Order cancelled: {}", orderId);
+
+        orderMetrics.incrementOrderCancelled();
 
         return mapToOrderResponse(order);
     }
